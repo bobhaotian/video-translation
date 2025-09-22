@@ -1,0 +1,13 @@
+torch
+transformers
+sentencepiece
+sacremoses
+
+pysrt
+pydub
+librosa
+soundfile
+tqdm
+
+TTS==0.22.0
+python-crfsuite==0.9.10
