@@ -4,9 +4,7 @@ An end-to-end pipeline for translating video content from English to German whil
 
 ## 🎬 Demo
 
-**See the results:** [📺 Sample Translated Video](outputs/tanzania-2.de.mp4) - English to German translation with voice cloning
-
-Original English video → German audio with preserved speaker identity and professional quality enhancement.
+**See the results:** [📺 Sample Translated Video](outputs/tanzania-2.de.mp4)
 
 ## Installation & Setup
 
