@@ -152,7 +152,7 @@ ffmpeg -y -i outputs/tanzania-2.de.cloned.wav \
   outputs/tanzania-2.de.final.wav
 
 # 6. Combine enhanced audio with original video
-PYTHONNOUSERSITE=1 $ENV_PY src/mux_audio.py data/tanzania-2.mp4 outputs/tanzania-2.de.final.wav outputs/tanzania-2.de.mp4
+PYTHONNOUSERSITE=1 $ENV_PY src/mux_audio.py data/tanzania-2.mp4 outputs/tanzania-2.de.final.wav outputs/tanzania-2.de.mp4                                               
 
 echo "✓ Translation complete! Output: outputs/tanzania-2.de.mp4"
 ```
@@ -321,7 +321,7 @@ Expected processing times on different hardware:
 - **Encoding**: Maintains original video quality, encodes audio as AAC 192kbps
 - **Sync**: Ensures audio-video synchronization is preserved
 
-## Assumptions
+## Assumptions & Limitations
 
 This MVP makes the following assumptions:
 
@@ -331,26 +331,6 @@ This MVP makes the following assumptions:
 4. **Subtitle Accuracy**: Input SRT files accurately represent the spoken content with proper timing
 5. **Environment**: Designed for macOS with conda environment management (adaptable to other systems)
 6. **Processing Time**: Expect 2-5x real-time processing depending on video length and hardware
-
-## Requirements
-
-### System Requirements
-- **OS**: macOS, Linux, or Windows with conda support
-- **Memory**: 8GB+ RAM recommended (16GB+ for longer videos)
-- **Storage**: 2-3x video file size for temporary processing files
-- **GPU**: Optional but recommended for faster processing (CUDA/MPS support)
-
-### Input Specifications
-- **Video**: MP4 format with clear audio track
-- **Subtitles**: SRT format with accurate timing and text
-- **Audio**: Mono or stereo, any sample rate (will be resampled to 22050 Hz)
-
-### Output Specifications
-- **Video**: MP4 with original video quality, AAC audio at 192kbps
-- **Audio**: 24kHz mono WAV files for intermediate processing
-- **Subtitles**: UTF-8 encoded SRT files with German translation
-
-## Limitations & Known Issues
 
 ### Current Limitations
 
@@ -382,163 +362,3 @@ This MVP makes the following assumptions:
    - Extend translation models to support additional language pairs
    - Add language detection for automatic source language identification
    - Support for right-to-left languages and different text encodings
-
-## Contributing
-
-We welcome contributions to improve this video translation pipeline! Here's how to get involved:
-
-### Development Setup
-
-1. **Fork and Clone**
-   ```bash
-   git clone https://github.com/your-username/video-translation.git
-   cd video-translation
-   ```
-
-2. **Set up Development Environment**
-   ```bash
-   conda create -n video-translate-dev -c conda-forge python=3.11.6 -y
-   conda activate video-translate-dev
-   # Follow installation steps in this README
-   ```
-
-3. **Create Feature Branch**
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
-
-### Contribution Guidelines
-
-#### Code Quality
-- Follow PEP 8 style guidelines for Python code
-- Add docstrings to new functions and classes
-- Include type hints where appropriate
-- Test changes with provided example files
-
-#### Testing Requirements
-- Verify all existing functionality still works
-- Add test cases for new features
-- Ensure cross-platform compatibility (macOS/Linux)
-- Test with different video formats and lengths
-
-#### Documentation
-- Update README.md for new features or changes
-- Add examples for new command-line options
-- Update troubleshooting section for new issues
-- Ensure all dependencies are listed in `requirements.txt`
-
-### Areas for Contribution
-
-**High Priority:**
-- Additional language pair support (English → Spanish, French, etc.)
-- Lip-sync integration with Wav2Lip
-- GUI interface for non-technical users
-- Batch processing for multiple videos
-
-**Medium Priority:**
-- Audio quality improvements
-- Performance optimizations
-- Better error handling and logging
-- Automated quality assessment metrics
-
-**Documentation:**
-- Video tutorials and demos
-- Docker containerization
-- Cloud deployment guides
-- Performance benchmarking
-
-### Submitting Changes
-
-1. **Test Thoroughly**
-   ```bash
-   # Run the automated test script
-   bash test_pipeline.sh
-   
-   # Test with different inputs
-   ENV_PY="$(conda info --base)/envs/video-translate/bin/python"
-   PYTHONNOUSERSITE=1 $ENV_PY src/translate_srt.py "your_test.srt" "output.de.srt"
-   ```
-
-2. **Commit with Clear Messages**
-   ```bash
-   git add .
-   git commit -m "feat: add Spanish translation support"
-   # Use conventional commit format: feat/fix/docs/style/refactor/test
-   ```
-
-3. **Submit Pull Request**
-   - Provide clear description of changes
-   - Include before/after examples for improvements
-   - Reference any related issues
-   - Add screenshots/videos for UI changes
-
-### Code of Conduct
-
-- Be respectful and inclusive in all interactions
-- Provide constructive feedback in code reviews
-- Help newcomers get started with the project
-- Follow GitHub community guidelines
-
-## License & Usage
-
-### License
-This project is released under the **MIT License** - see the full license text below:
-
-```
-MIT License
-
-Copyright (c) 2024 Video Translation MVP
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-```
-
-### Third-Party Model Licenses
-
-This project uses several third-party models with their own licensing terms:
-
-- **XTTS v2**: [Coqui Public Model License](https://coqui.ai/cpml) - Free for non-commercial use
-- **Helsinki-NLP/opus-mt-en-de**: Apache License 2.0
-- **Transformers Library**: Apache License 2.0
-
-### Commercial Usage
-
-**✅ Permitted:**
-- Educational and research purposes
-- Personal video translation projects
-- Open-source derivatives and modifications
-
-**⚠️ Commercial Use Requirements:**
-- Review XTTS v2 commercial licensing terms
-- Consider model alternatives for commercial deployment
-- Ensure compliance with all third-party licenses
-
-**📧 Contact:**
-For commercial licensing questions or custom implementations, please open a GitHub issue with details about your use case.
-
----
-
-### Acknowledgments
-
-This project builds upon excellent work from:
-- [Coqui TTS](https://github.com/coqui-ai/TTS) for XTTS v2 voice cloning
-- [Helsinki-NLP](https://huggingface.co/Helsinki-NLP) for machine translation models
-- [Hugging Face](https://huggingface.co/) for model hosting and transformers library
-- [FFmpeg](https://ffmpeg.org/) for audio/video processing
-
-**⭐ Star this repository if you find it useful!**
