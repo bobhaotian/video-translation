@@ -2,41 +2,11 @@
 
 An end-to-end pipeline for translating video content from English to German while preserving the original speaker's voice characteristics, tone, and identity.
 
-## Overview
+## 🎬 Demo
 
-This MVP takes a video file with English audio and its corresponding transcription, then generates a new video with German audio that maintains the original speaker's voice identity and synchronization.
+**See the results:** [📺 Sample Translated Video](outputs/tanzania-2.de.mp4) - English to German translation with voice cloning
 
-### Pipeline Architecture
-
-The translation pipeline consists of four main stages:
-
-1. **Text Translation**: Convert English subtitles to German using Helsinki-NLP's machine translation model
-2. **Voice Cloning**: Generate German speech using XTTS v2 that preserves the original speaker's voice characteristics  
-3. **Audio Synchronization**: Time-stretch generated audio to match original subtitle timing and apply audio enhancement
-4. **Video Muxing**: Combine the new German audio track with the original video
-
-### Key Features
-
-- **Voice Identity Preservation**: Uses XTTS v2 for cross-lingual voice cloning
-- **Automatic Synchronization**: Maintains timing alignment with original subtitles
-- **Audio Enhancement**: Applies noise reduction, EQ, and loudness normalization
-- **Batch Processing**: Handles multiple subtitle segments efficiently
-
-## Project Structure
-
-```
-video-translation/
-├── src/
-│   ├── translate_srt.py      # English to German subtitle translation
-│   ├── srt_to_tts.py         # Voice cloning and German speech synthesis
-│   └── mux_audio.py          # Audio-video muxing
-├── data/                     # Input files directory
-├── outputs/                  # Generated files directory
-├── Example Input files/      # Sample input files for testing
-├── Example Output files/     # Sample output files for reference
-├── requirements.txt          # Python dependencies
-└── README.md                 # This file
-```
+Original English video → German audio with preserved speaker identity and professional quality enhancement.
 
 ## Installation & Setup
 
@@ -170,6 +140,42 @@ To use the pipeline with your own video files, simply replace the file paths in 
 PYTHONNOUSERSITE=1 $ENV_PY src/translate_srt.py "path/to/your/subtitles.srt" outputs/your-video.de.srt
 ffmpeg -y -i "path/to/your/video.mp4" -vn -ac 1 -ar 22050 outputs/orig.wav
 # ... continue with rest of pipeline using your-video.de.* naming
+```
+
+## Overview
+
+This MVP takes a video file with English audio and its corresponding transcription, then generates a new video with German audio that maintains the original speaker's voice identity and synchronization.
+
+### Pipeline Architecture
+
+The translation pipeline consists of four main stages:
+
+1. **Text Translation**: Convert English subtitles to German using Helsinki-NLP's machine translation model
+2. **Voice Cloning**: Generate German speech using XTTS v2 that preserves the original speaker's voice characteristics  
+3. **Audio Synchronization**: Time-stretch generated audio to match original subtitle timing and apply audio enhancement
+4. **Video Muxing**: Combine the new German audio track with the original video
+
+### Key Features
+
+- **Voice Identity Preservation**: Uses XTTS v2 for cross-lingual voice cloning
+- **Automatic Synchronization**: Maintains timing alignment with original subtitles
+- **Audio Enhancement**: Applies noise reduction, EQ, and loudness normalization
+- **Batch Processing**: Handles multiple subtitle segments efficiently
+
+### Project Structure
+
+```
+video-translation/
+├── src/
+│   ├── translate_srt.py      # English to German subtitle translation
+│   ├── srt_to_tts.py         # Voice cloning and German speech synthesis
+│   └── mux_audio.py          # Audio-video muxing
+├── data/                     # Input files directory
+├── outputs/                  # Generated files directory
+├── Example Input files/      # Sample input files for testing
+├── Example Output files/     # Sample output files for reference
+├── requirements.txt          # Python dependencies
+└── README.md                 # This file
 ```
 
 ## Component Reference
