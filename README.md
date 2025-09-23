@@ -157,90 +157,54 @@ PYTHONNOUSERSITE=1 $ENV_PY src/mux_audio.py data/tanzania-2.mp4 outputs/tanzania
 echo "✓ Translation complete! Output: outputs/tanzania-2.de.mp4"
 ```
 
-### Complete Example with Sample Files
+### Using Your Own Files
 
-Use the provided example files to test the pipeline:
+To use the pipeline with your own video files, simply replace the file paths in the Quick Start example:
 
 ```bash
-# Activate environment
-conda activate video-translate
-ENV_PY="$(conda info --base)/envs/video-translate/bin/python"
-export PYTHONNOUSERSITE=1
+# Replace these paths with your own files:
+# data/tanzania-2.mp4 → path/to/your/video.mp4
+# data/tanzania-2.srt → path/to/your/subtitles.srt
 
-# Full pipeline using example files
-PYTHONNOUSERSITE=1 $ENV_PY src/translate_srt.py "Example Input files/Tanzania-caption copy.srt" outputs/tanzania-2.de.srt
-ffmpeg -y -i "Example Input files/Tanzania-2 copy.mp4" -vn -ac 1 -ar 22050 outputs/orig.wav
-PYTHONNOUSERSITE=1 $ENV_PY src/srt_to_tts.py outputs/tanzania-2.de.srt outputs/tanzania-2.de.cloned.wav --ref_wav outputs/orig.wav
-ffmpeg -y -i outputs/tanzania-2.de.cloned.wav \
-  -af "afftdn=nt=w:nf=-28, \
-       equalizer=f=3000:t=q:w=2:g=3, equalizer=f=120:t=q:w=1:g=-2, \
-       loudnorm=I=-16:TP=-1.5:LRA=11" \
-  outputs/tanzania-2.de.final.wav
-PYTHONNOUSERSITE=1 $ENV_PY src/mux_audio.py "Example Input files/Tanzania-2 copy.mp4" outputs/tanzania-2.de.final.wav outputs/tanzania-2.de.mp4
-
-echo "✓ Test complete! Check outputs/tanzania-2.de.mp4"
+# Example with custom files:
+PYTHONNOUSERSITE=1 $ENV_PY src/translate_srt.py "path/to/your/subtitles.srt" outputs/your-video.de.srt
+ffmpeg -y -i "path/to/your/video.mp4" -vn -ac 1 -ar 22050 outputs/orig.wav
+# ... continue with rest of pipeline using your-video.de.* naming
 ```
 
-### Individual Components
+## Component Reference
 
-#### 1. Text Translation (`translate_srt.py`)
+Each script handles a specific part of the translation pipeline:
 
-Translates English subtitles to German using machine translation:
-
+### `translate_srt.py` - Text Translation
+**Purpose:** Converts English subtitles to German using Helsinki-NLP machine translation
+**Key Options:**
+- `--informal`: Use casual German ("du" instead of formal "Sie")
 ```bash
-# Basic translation (formal German - uses "Sie")
-PYTHONNOUSERSITE=1 $ENV_PY src/translate_srt.py input.srt output.de.srt
-
-# Informal German (uses "du" instead of "Sie")
-PYTHONNOUSERSITE=1 $ENV_PY src/translate_srt.py input.srt output.de.srt --informal
-
-# Example with provided files
-PYTHONNOUSERSITE=1 $ENV_PY src/translate_srt.py "Example Input files/Tanzania-caption copy.srt" outputs/tanzania-2.de.srt
+PYTHONNOUSERSITE=1 $ENV_PY src/translate_srt.py input.srt output.de.srt [--informal]
 ```
 
-#### 2. Voice Cloning & Speech Synthesis (`srt_to_tts.py`)
-
-Generates German speech that mimics the original speaker's voice:
-
+### `srt_to_tts.py` - Voice Cloning & Speech Synthesis  
+**Purpose:** Generates German speech using XTTS v2 that preserves original speaker's voice
+**Key Options:**
+- `--ref_wav`: Reference audio for voice cloning (required)
+- `--speed`: Adjust playback speed (0.6-1.6x range, default 1.0)
 ```bash
-# Basic voice cloning
-PYTHONNOUSERSITE=1 $ENV_PY src/srt_to_tts.py outputs/tanzania-2.de.srt outputs/tanzania-2.de.cloned.wav --ref_wav outputs/orig.wav
-
-# Adjust playback speed (0.6-1.6x range)
-PYTHONNOUSERSITE=1 $ENV_PY src/srt_to_tts.py outputs/tanzania-2.de.srt outputs/tanzania-2.de.cloned.wav --ref_wav outputs/orig.wav --speed 1.1
-
-# Example: slower pace for clarity
-PYTHONNOUSERSITE=1 $ENV_PY src/srt_to_tts.py outputs/tanzania-2.de.srt outputs/tanzania-2.de.cloned.wav --ref_wav outputs/orig.wav --speed 0.9
+PYTHONNOUSERSITE=1 $ENV_PY src/srt_to_tts.py german.srt output.wav --ref_wav reference.wav [--speed 1.1]
 ```
 
-#### 3. Audio Enhancement (FFmpeg)
+### FFmpeg Audio Enhancement
+**Purpose:** Professional audio processing for broadcast quality
+**Applied filters:**
+- `afftdn`: Noise reduction (-28dB threshold)  
+- `equalizer`: Clarity boost (3kHz) and rumble reduction (120Hz)
+- `loudnorm`: Loudness standardization (-16 LUFS)
 
-Apply professional audio processing for broadcast-quality output:
-
+### `mux_audio.py` - Audio-Video Muxing
+**Purpose:** Combines enhanced German audio with original video
+**Output:** MP4 with original video quality + AAC audio (192kbps)
 ```bash
-# Full enhancement pipeline
-ffmpeg -y -i outputs/tanzania-2.de.cloned.wav \
-  -af "afftdn=nt=w:nf=-28, \
-       equalizer=f=3000:t=q:w=2:g=3, equalizer=f=120:t=q:w=1:g=-2, \
-       loudnorm=I=-16:TP=-1.5:LRA=11" \
-  outputs/tanzania-2.de.final.wav
-
-# Individual filters (can be combined)
-ffmpeg -y -i outputs/tanzania-2.de.cloned.wav -af "afftdn=nt=w:nf=-28" outputs/denoised.wav          # Noise reduction
-ffmpeg -y -i outputs/tanzania-2.de.cloned.wav -af "equalizer=f=3000:t=q:w=2:g=3" outputs/eq.wav       # Clarity boost
-ffmpeg -y -i outputs/tanzania-2.de.cloned.wav -af "loudnorm=I=-16:TP=-1.5:LRA=11" outputs/normalized.wav  # Loudness normalization
-```
-
-#### 4. Audio-Video Muxing (`mux_audio.py`)
-
-Combines the translated audio with the original video:
-
-```bash
-# Basic muxing
-PYTHONNOUSERSITE=1 $ENV_PY src/mux_audio.py data/tanzania-2.mp4 outputs/tanzania-2.de.final.wav outputs/tanzania-2.de.mp4
-
-# Preserves video quality, encodes audio as AAC 192kbps
-PYTHONNOUSERSITE=1 $ENV_PY src/mux_audio.py "Example Input files/Tanzania-2 copy.mp4" outputs/tanzania-2.de.final.wav outputs/tanzania-2.de.mp4
+PYTHONNOUSERSITE=1 $ENV_PY src/mux_audio.py input_video.mp4 translated_audio.wav output_video.mp4
 ```
 
 ## Example Files
@@ -264,9 +228,9 @@ The repository includes sample files for testing and demonstration:
 
 ## Testing & Validation
 
-### Automated Testing Script
+### Test with Provided Sample Files
 
-Create and run a comprehensive test:
+The repository includes sample files in `Example Input files/` for testing. Here's an automated test script that uses these files:
 
 ```bash
 #!/bin/bash
@@ -312,45 +276,6 @@ PYTHONNOUSERSITE=1 $ENV_PY src/mux_audio.py "Example Input files/Tanzania-2 copy
 echo "✓ Video muxing completed"
 
 echo "🎉 All tests passed! Check outputs/test/ for results"
-```
-
-### Manual Quality Verification
-
-After running the pipeline, verify these quality metrics:
-
-#### 1. **Audio Quality Assessment**
-```bash
-# Check audio specifications
-ffprobe outputs/test/tanzania-2.de.final.wav 2>&1 | grep "Audio:"
-# Expected: 24000 Hz, mono, s16
-
-# Listen to audio segments
-ffplay outputs/test/tanzania-2.de.final.wav -autoexit  # Play entire file
-ffplay outputs/test/tanzania-2.de.final.wav -t 10 -autoexit  # Play first 10 seconds
-```
-
-#### 2. **Video Synchronization Check**
-```bash
-# Compare durations
-echo "Original video duration:"
-ffprobe "Example Input files/Tanzania-2 copy.mp4" 2>&1 | grep "Duration"
-echo "Translated video duration:"
-ffprobe outputs/test/tanzania-2.de.mp4 2>&1 | grep "Duration"
-# Should be identical or very close
-
-# Visual inspection
-ffplay outputs/test/tanzania-2.de.mp4  # Check lip-sync manually
-```
-
-#### 3. **Translation Quality Review**
-```bash
-# Compare subtitle files
-echo "=== Original English ==="
-head -20 "Example Input files/Tanzania-caption copy.srt"
-echo "=== Generated German ==="
-head -20 outputs/test/tanzania-2.de.srt
-echo "=== Reference German ==="
-head -20 "Example Input files/tanzania-2.de copy.srt"
 ```
 
 ### Performance Benchmarks
@@ -457,184 +382,6 @@ This MVP makes the following assumptions:
    - Extend translation models to support additional language pairs
    - Add language detection for automatic source language identification
    - Support for right-to-left languages and different text encodings
-
-## Troubleshooting
-
-### Installation Issues
-
-#### Problem: `espeak-ng not found` during TTS synthesis
-**Solution:**
-```bash
-# macOS
-brew install espeak-ng
-export PHONEMIZER_ESPEAK_PATH=/opt/homebrew/bin/espeak-ng
-export PHONEMIZER_ESPEAK_LIBRARY=/opt/homebrew/lib/libespeak-ng.dylib
-
-# Linux (Ubuntu/Debian)
-sudo apt-get install espeak-ng libespeak-ng-dev
-export PHONEMIZER_ESPEAK_PATH=/usr/bin/espeak-ng
-export PHONEMIZER_ESPEAK_LIBRARY=/usr/lib/x86_64-linux-gnu/libespeak-ng.so
-
-# Verify installation
-espeak-ng --version
-```
-
-#### Problem: `ModuleNotFoundError` for TTS or transformers
-**Solution:**
-```bash
-# Ensure you're in the correct environment
-conda activate video-translate
-python -c "import sys; print(sys.executable)"
-
-# Reinstall problematic packages
-pip uninstall TTS transformers -y
-pip install TTS==0.22.0 transformers==4.43.4
-```
-
-#### Problem: `CUDA out of memory` during processing
-**Solutions:**
-```bash
-# Option 1: Force CPU-only processing
-export CUDA_VISIBLE_DEVICES=""
-PYTHONNOUSERSITE=1 $ENV_PY src/srt_to_tts.py outputs/tanzania-2.de.srt outputs/tanzania-2.de.cloned.wav --ref_wav outputs/orig.wav
-
-# Option 2: Reduce memory usage (edit srt_to_tts.py)
-# Change sr = 24000 to sr = 16000 (line 24)
-
-# Option 3: Process shorter segments
-# Split large SRT files into smaller chunks
-```
-
-### Audio Quality Issues
-
-#### Problem: Poor voice cloning quality or robotic sound
-**Diagnosis & Solutions:**
-```bash
-# 1. Check reference audio quality
-ffprobe outputs/orig.wav 2>&1 | grep "Audio:"
-# Should be: clear speech, >22kHz sample rate, minimal background noise
-
-# 2. Extract better reference audio (longer, cleaner segment)
-ffmpeg -i data/tanzania-2.mp4 -ss 00:00:30 -t 00:00:30 -vn -ac 1 -ar 22050 outputs/better_orig.wav
-
-# 3. Apply noise reduction to reference
-ffmpeg -i outputs/orig.wav -af "afftdn=nt=w:nf=-25" outputs/clean_orig.wav
-
-# 4. Try different speed settings
-PYTHONNOUSERSITE=1 $ENV_PY src/srt_to_tts.py outputs/tanzania-2.de.srt outputs/tanzania-2.de.cloned.wav --ref_wav outputs/orig.wav --speed 0.9  # Slower, more natural
-PYTHONNOUSERSITE=1 $ENV_PY src/srt_to_tts.py outputs/tanzania-2.de.srt outputs/tanzania-2.de.cloned.wav --ref_wav outputs/orig.wav --speed 1.1  # Faster, more energetic
-```
-
-#### Problem: Audio-video synchronization drift
-**Diagnosis & Solutions:**
-```bash
-# 1. Check video framerate consistency
-ffprobe input.mp4 2>&1 | grep "fps"
-# Ensure constant framerate (not variable)
-
-# 2. Verify SRT timing accuracy
-python -c "
-import pysrt
-subs = pysrt.open('input.srt')
-for i, s in enumerate(subs[:5]):
-    print(f'{i}: {s.start} → {s.end} ({s.end.ordinal - s.start.ordinal}ms)')
-"
-
-# 3. Check for overlapping subtitles
-python -c "
-import pysrt
-subs = pysrt.open('input.srt')
-for i in range(len(subs)-1):
-    if subs[i].end > subs[i+1].start:
-        print(f'Overlap at subtitle {i}: {subs[i].end} > {subs[i+1].start}')
-"
-```
-
-### Translation Issues
-
-#### Problem: Poor German translation quality
-**Solutions:**
-```bash
-# 1. Use formal mode for professional content
-PYTHONNOUSERSITE=1 $ENV_PY src/translate_srt.py input.srt output.srt  # Default: formal
-
-# 2. Use informal mode for casual content
-PYTHONNOUSERSITE=1 $ENV_PY src/translate_srt.py input.srt output.srt --informal
-
-# 3. Manual post-processing for critical content
-# Edit outputs/tanzania-2.de.srt manually for accuracy
-```
-
-#### Problem: Special characters or encoding issues
-**Solutions:**
-```bash
-# Ensure UTF-8 encoding
-file -I input.srt  # Should show: charset=utf-8
-
-# Convert if necessary
-iconv -f iso-8859-1 -t utf-8 input.srt > input_utf8.srt
-```
-
-### Performance Issues
-
-#### Problem: Very slow processing (>10x real-time)
-**Optimizations:**
-```bash
-# 1. Enable GPU acceleration
-python -c "import torch; print('CUDA available:', torch.cuda.is_available())"
-python -c "import torch; print('MPS available:', torch.backends.mps.is_available())"
-
-# 2. Use SSD storage for outputs directory
-mkdir /tmp/fast_outputs
-ln -sf /tmp/fast_outputs outputs
-
-# 3. Process smaller segments in parallel
-# Split SRT file and process chunks independently
-```
-
-#### Problem: High memory usage
-**Solutions:**
-```bash
-# Monitor memory usage
-htop  # or Activity Monitor on macOS
-
-# Clear model cache between runs
-python -c "
-import torch
-torch.cuda.empty_cache()  # If using CUDA
-"
-
-# Process in smaller batches (modify srt_to_tts.py if needed)
-```
-
-### Output Validation
-
-#### Quick health checks for outputs:
-```bash
-# 1. Verify file integrity
-ffprobe outputs/tanzania-2.de.mp4 2>&1 | grep "Invalid"  # Should be empty
-
-# 2. Check audio levels
-ffmpeg -i outputs/tanzania-2.de.final.wav -af "astats" -f null - 2>&1 | grep "RMS"
-# RMS level should be around -20dB to -12dB
-
-# 3. Validate video-audio sync
-ffprobe outputs/tanzania-2.de.mp4 2>&1 | grep "Duration" | head -2
-# Audio and video durations should match
-
-# 4. Test playback
-ffplay outputs/tanzania-2.de.mp4 -autoexit  # Should play without errors
-```
-
-### Getting Help
-
-If issues persist:
-
-1. **Check model downloads**: First run downloads models (~1-2GB), ensure stable internet
-2. **Verify system compatibility**: Test with provided example files first
-3. **Enable debug output**: Add `-v` flag to Python scripts for verbose logging
-4. **Resource monitoring**: Ensure sufficient RAM/disk space during processing
-5. **Community support**: Check GitHub issues for similar problems
 
 ## Contributing
 
