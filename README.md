@@ -282,23 +282,6 @@ echo "✓ Video muxing completed"
 echo "🎉 All tests passed! Check outputs/test/ for results"
 ```
 
-### Performance Benchmarks
-
-Expected processing times on different hardware:
-
-| Hardware | Video Length | Processing Time | Real-time Factor |
-|----------|--------------|-----------------|------------------|
-| MacBook Pro M2 | 2 minutes | 6-8 minutes | 3-4x |
-| Intel i7 + RTX 3080 | 2 minutes | 4-6 minutes | 2-3x |
-| CPU-only (8 cores) | 2 minutes | 15-20 minutes | 7-10x |
-
-### Expected Output Quality
-
-- **Voice Similarity**: 85-95% preservation of original speaker characteristics
-- **Audio Clarity**: Broadcast-quality with noise reduction and normalization
-- **Synchronization**: <100ms timing deviation from original
-- **Translation Accuracy**: Professional-grade German with contextual awareness
-
 ## Pipeline Details
 
 ### 1. Text Translation (`translate_srt.py`)
